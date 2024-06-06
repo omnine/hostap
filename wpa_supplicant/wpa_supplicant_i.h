@@ -22,6 +22,8 @@
 #include "wmm_ac.h"
 #include "pasn/pasn_common.h"
 
+#include <in6addr.h>
+
 extern const char *const wpa_supplicant_version;
 extern const char *const wpa_supplicant_license;
 #ifndef CONFIG_NO_STDOUT_DEBUG

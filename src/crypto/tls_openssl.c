@@ -408,8 +408,9 @@ static int cryptoapi_rsa_pub_dec(int flen, const unsigned char *from,
 static int cryptoapi_rsa_priv_enc(int flen, const unsigned char *from,
 				  unsigned char *to, RSA *rsa, int padding)
 {
+	const RSA_METHOD* method = RSA_get_method(rsa);
 	struct cryptoapi_rsa_data *priv =
-		(struct cryptoapi_rsa_data *) rsa->meth->app_data;
+		(struct cryptoapi_rsa_data *) RSA_meth_get0_app_data(method);;
 	HCRYPTHASH hash;
 	DWORD hash_size, len, i;
 	unsigned char *buf = NULL;
@@ -506,9 +507,14 @@ static void cryptoapi_free_data(struct cryptoapi_rsa_data *priv)
 
 static int cryptoapi_finish(RSA *rsa)
 {
+	/*
 	cryptoapi_free_data((struct cryptoapi_rsa_data *) rsa->meth->app_data);
 	os_free((void *) rsa->meth);
-	rsa->meth = NULL;
+	rsa->meth = NULL;	
+	*/
+    if (rsa != NULL) {
+        RSA_free(rsa);
+    }
 	return 1;
 }
 
@@ -572,6 +578,7 @@ static int tls_cryptoapi_cert(SSL *ssl, const char *name)
 		return -1;
 
 	priv = os_zalloc(sizeof(*priv));
+	/*
 	rsa_meth = os_zalloc(sizeof(*rsa_meth));
 	if (priv == NULL || rsa_meth == NULL) {
 		wpa_printf(MSG_WARNING, "CryptoAPI: Failed to allocate memory "
@@ -579,7 +586,9 @@ static int tls_cryptoapi_cert(SSL *ssl, const char *name)
 		os_free(priv);
 		os_free(rsa_meth);
 		return -1;
-	}
+	}	
+	*/
+
 
 	priv->cert = cryptoapi_find_cert(name, CERT_SYSTEM_STORE_CURRENT_USER);
 	if (priv->cert == NULL) {
@@ -610,7 +619,7 @@ static int tls_cryptoapi_cert(SSL *ssl, const char *name)
 				"certificate");
 		goto err;
 	}
-
+/*
 	rsa_meth->name = "Microsoft CryptoAPI RSA Method";
 	rsa_meth->rsa_pub_enc = cryptoapi_rsa_pub_enc;
 	rsa_meth->rsa_pub_dec = cryptoapi_rsa_pub_dec;
@@ -619,6 +628,26 @@ static int tls_cryptoapi_cert(SSL *ssl, const char *name)
 	rsa_meth->finish = cryptoapi_finish;
 	rsa_meth->flags = RSA_METHOD_FLAG_NO_CHECK;
 	rsa_meth->app_data = (char *) priv;
+*/
+
+
+	rsa_meth = RSA_meth_new("Microsoft CryptoAPI RSA Method", RSA_METHOD_FLAG_NO_CHECK);
+	if (rsa_meth == NULL) {
+		return -1;
+	}
+
+	if (!RSA_meth_set_pub_enc(rsa_meth, cryptoapi_rsa_pub_enc)
+		|| !RSA_meth_set_pub_dec(rsa_meth, cryptoapi_rsa_pub_dec)
+		|| !RSA_meth_set_priv_enc(rsa_meth, cryptoapi_rsa_priv_enc)
+		|| !RSA_meth_set_priv_dec(rsa_meth, cryptoapi_rsa_priv_dec)
+		|| !RSA_meth_set_finish(rsa_meth, cryptoapi_finish)) {
+		/* handle error */
+	}
+
+	RSA_meth_set0_app_data(rsa_meth, (char *) priv);
+
+
+
 
 	rsa = RSA_new();
 	if (rsa == NULL) {
@@ -632,12 +661,29 @@ static int tls_cryptoapi_cert(SSL *ssl, const char *name)
 		rsa = NULL;
 		goto err;
 	}
+	/*
 	pub_rsa = cert->cert_info->key->pkey->pkey.rsa;
 	X509_free(cert);
 	cert = NULL;
 
 	rsa->n = BN_dup(pub_rsa->n);
-	rsa->e = BN_dup(pub_rsa->e);
+	rsa->e = BN_dup(pub_rsa->e);	
+	*/
+
+
+	EVP_PKEY *pkey = X509_get_pubkey(cert);
+	pub_rsa = EVP_PKEY_get0_RSA(pkey);
+	EVP_PKEY_free(pkey);
+
+	X509_free(cert);
+	cert = NULL;
+
+	BIGNUM *n = RSA_get0_n(pub_rsa);
+	BIGNUM *e = RSA_get0_e(pub_rsa);
+
+	RSA_set0_key(rsa, BN_dup(n), BN_dup(e), NULL);
+
+
 	if (!RSA_set_method(rsa, rsa_meth))
 		goto err;
 
@@ -1170,7 +1216,7 @@ void * tls_init(const struct tls_config *conf)
 	if (conf && conf->openssl_ciphers)
 		ciphers = conf->openssl_ciphers;
 	else
-		ciphers = TLS_DEFAULT_CIPHERS;
+		ciphers = "DEFAULT:!EXP:!LOW";	// TLS_DEFAULT_CIPHERS;
 	if (SSL_CTX_set_cipher_list(ssl, ciphers) != 1) {
 		wpa_printf(MSG_ERROR,
 			   "OpenSSL: Failed to set cipher string '%s'",

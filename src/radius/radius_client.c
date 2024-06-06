@@ -8,7 +8,8 @@
 
 #include "includes.h"
 #include <fcntl.h>
-#include <net/if.h>
+//#include <net/if.h>
+#include <WinSock2.h>
 
 #include "common.h"
 #include "eloop.h"
@@ -1093,8 +1094,8 @@ static void radius_client_receive(int sock, void *eloop_ctx, void *sock_ctx)
 	RadiusType msg_type = (uintptr_t) sock_ctx;
 	int len, roundtrip;
 	unsigned char buf[RADIUS_MAX_MSG_LEN];
-	struct msghdr msghdr = {0};
-	struct iovec iov;
+//	struct msghdr msghdr = {0};
+//	struct iovec iov;
 	struct radius_msg *msg;
 	struct radius_hdr *hdr;
 	struct radius_rx_handler *handlers;
@@ -1130,6 +1131,8 @@ static void radius_client_receive(int sock, void *eloop_ctx, void *sock_ctx)
 		rconf = conf->auth_server;
 	}
 
+/*
+
 	iov.iov_base = buf;
 	iov.iov_len = RADIUS_MAX_MSG_LEN;
 	msghdr.msg_iov = &iov;
@@ -1140,6 +1143,21 @@ static void radius_client_receive(int sock, void *eloop_ctx, void *sock_ctx)
 		wpa_printf(MSG_INFO, "recvmsg[RADIUS]: %s", strerror(errno));
 		return;
 	}
+*/
+	WSABUF wsaBuf;
+	wsaBuf.buf = buf;
+	wsaBuf.len = RADIUS_MAX_MSG_LEN;
+
+	DWORD bytesReceived;
+	DWORD flags = 0;
+
+	if (WSARecv(sock, &wsaBuf, 1, &bytesReceived, &flags, NULL, NULL) == SOCKET_ERROR) {
+		wpa_printf(MSG_INFO, "recvmsg[RADIUS]: %s", strerror(errno));
+		return;
+	}
+
+
+
 #ifdef CONFIG_RADIUS_TLS
 	if (tls && len == 0) {
 		wpa_printf(MSG_DEBUG, "RADIUS: No TCP data available");
@@ -1190,12 +1208,12 @@ static void radius_client_receive(int sock, void *eloop_ctx, void *sock_ctx)
 	hostapd_logger(radius->ctx, NULL, HOSTAPD_MODULE_RADIUS,
 		       HOSTAPD_LEVEL_DEBUG, "Received %d bytes from RADIUS "
 		       "server", len);
-
+/*
 	if (msghdr.msg_flags & MSG_TRUNC) {
 		wpa_printf(MSG_INFO, "RADIUS: Possibly too long UDP frame for our buffer - dropping it");
 		return;
 	}
-
+*/
 	msg = radius_msg_parse(buf, len);
 	if (msg == NULL) {
 		wpa_printf(MSG_INFO, "RADIUS: Parsing incoming frame failed");
