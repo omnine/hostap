@@ -1,6 +1,5 @@
 .config
 *.service
-eapol_test
 nfc_pw_token
 preauth_test
 wpa_cli
