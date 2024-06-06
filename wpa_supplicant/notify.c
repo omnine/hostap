@@ -631,12 +631,14 @@ void wpas_notify_resume(struct wpa_global *global)
 	}
 	wpa_printf(MSG_DEBUG, "System resume notification (slept %d seconds)",
 		   slept);
-
+/*
 	for (wpa_s = global->ifaces; wpa_s; wpa_s = wpa_s->next) {
 		wpa_drv_resume(wpa_s);
 		if (wpa_s->wpa_state == WPA_DISCONNECTED)
 			wpa_supplicant_req_scan(wpa_s, 0, 100000);
 	}
+*/
+
 }
 
 

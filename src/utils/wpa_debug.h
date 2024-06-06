@@ -26,7 +26,7 @@ enum {
 #ifdef CONFIG_NO_STDOUT_DEBUG
 
 #define wpa_debug_print_timestamp() do { } while (0)
-#define wpa_printf(args...) do { } while (0)
+#define wpa_printf(args) do { } while (0)
 #define wpa_hexdump(l,t,b,le) do { } while (0)
 #define wpa_hexdump_buf(l,t,b) do { } while (0)
 #define wpa_hexdump_key(l,t,b,le) do { } while (0)
@@ -36,7 +36,7 @@ enum {
 #define wpa_debug_open_file(p) do { } while (0)
 #define wpa_debug_close_file() do { } while (0)
 #define wpa_debug_setup_stdout() do { } while (0)
-#define wpa_dbg(args...) do { } while (0)
+#define wpa_dbg(args) do { } while (0)
 
 static inline int wpa_debug_reopen_file(void)
 {

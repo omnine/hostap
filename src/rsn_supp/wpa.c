@@ -709,13 +709,16 @@ static int wpa_derive_ptk(struct wpa_sm *sm, const unsigned char *src_addr,
 		akmp |= WPA_KEY_MGMT_PSK_SHA256;
 	}
 #endif /* CONFIG_OWE */
-
+/*
 	if (sm->force_kdk_derivation ||
-	    (sm->secure_ltf &&
-	     ieee802_11_rsnx_capab(sm->ap_rsnxe, WLAN_RSNX_CAPAB_SECURE_LTF)))
+		(sm->secure_ltf &&
+		 ieee802_11_rsnx_capab(sm->ap_rsnxe, WLAN_RSNX_CAPAB_SECURE_LTF)))
 		kdk_len = WPA_KDK_MAX_LEN;
 	else
 		kdk_len = 0;
+
+*/
+
 
 	ret = wpa_pmk_to_ptk(sm->pmk, sm->pmk_len, "Pairwise key expansion",
 			     sm->own_addr, wpa_sm_get_auth_addr(sm), sm->snonce,
@@ -1122,7 +1125,7 @@ failed:
 static void wpa_sm_start_preauth(void *eloop_ctx, void *timeout_ctx)
 {
 	struct wpa_sm *sm = eloop_ctx;
-	rsn_preauth_candidate_process(sm);
+//	rsn_preauth_candidate_process(sm);
 }
 
 
@@ -4225,8 +4228,11 @@ void wpa_sm_notify_assoc(struct wpa_sm *sm, const u8 *bssid)
 	os_memset(sm->rx_replay_counter, 0, WPA_REPLAY_COUNTER_LEN);
 	sm->rx_replay_counter_set = 0;
 	sm->renew_snonce = 1;
+	/*
 	if (ether_addr_equal(sm->preauth_bssid, bssid))
 		rsn_preauth_deinit(sm);
+	*/
+
 
 #ifdef CONFIG_IEEE80211R
 	if (wpa_ft_is_completed(sm)) {
@@ -4289,7 +4295,7 @@ void wpa_sm_notify_disassoc(struct wpa_sm *sm)
 {
 	eloop_cancel_timeout(wpa_sm_start_preauth, sm, NULL);
 	eloop_cancel_timeout(wpa_sm_rekey_ptk, sm, NULL);
-	rsn_preauth_deinit(sm);
+//	rsn_preauth_deinit(sm);
 	pmksa_cache_clear_current(sm);
 	if (wpa_sm_get_state(sm) == WPA_4WAY_HANDSHAKE)
 		sm->dot11RSNA4WayHandshakeFailures++;
