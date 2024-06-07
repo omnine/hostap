@@ -8,8 +8,13 @@
 
 #include "includes.h"
 #include <fcntl.h>
-//#include <net/if.h>
-#include <WinSock2.h>
+
+#ifdef CONFIG_NATIVE_WINDOWS
+	#include <WinSock2.h>
+#else
+	#include <net/if.h>
+#endif
+
 
 #include "common.h"
 #include "eloop.h"
@@ -1131,19 +1136,7 @@ static void radius_client_receive(int sock, void *eloop_ctx, void *sock_ctx)
 		rconf = conf->auth_server;
 	}
 
-/*
-
-	iov.iov_base = buf;
-	iov.iov_len = RADIUS_MAX_MSG_LEN;
-	msghdr.msg_iov = &iov;
-	msghdr.msg_iovlen = 1;
-	msghdr.msg_flags = 0;
-	len = recvmsg(sock, &msghdr, MSG_DONTWAIT);
-	if (len < 0) {
-		wpa_printf(MSG_INFO, "recvmsg[RADIUS]: %s", strerror(errno));
-		return;
-	}
-*/
+#ifdef CONFIG_NATIVE_WINDOWS
 	WSABUF wsaBuf;
 	wsaBuf.buf = buf;
 	wsaBuf.len = RADIUS_MAX_MSG_LEN;
@@ -1155,8 +1148,19 @@ static void radius_client_receive(int sock, void *eloop_ctx, void *sock_ctx)
 		wpa_printf(MSG_INFO, "recvmsg[RADIUS]: %s", strerror(errno));
 		return;
 	}
-
-
+	len = bytesReceived;
+#else
+	iov.iov_base = buf;
+	iov.iov_len = RADIUS_MAX_MSG_LEN;
+	msghdr.msg_iov = &iov;
+	msghdr.msg_iovlen = 1;
+	msghdr.msg_flags = 0;
+	len = recvmsg(sock, &msghdr, MSG_DONTWAIT);
+	if (len < 0) {
+		wpa_printf(MSG_INFO, "recvmsg[RADIUS]: %s", strerror(errno));
+		return;
+	}
+#endif
 
 #ifdef CONFIG_RADIUS_TLS
 	if (tls && len == 0) {
