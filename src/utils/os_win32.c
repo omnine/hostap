@@ -10,6 +10,7 @@
 #include <time.h>
 #include <winsock2.h>
 #include <wincrypt.h>
+#include <io.h>
 
 #include "os.h"
 #include "common.h"

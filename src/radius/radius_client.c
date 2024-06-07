@@ -1099,8 +1099,11 @@ static void radius_client_receive(int sock, void *eloop_ctx, void *sock_ctx)
 	RadiusType msg_type = (uintptr_t) sock_ctx;
 	int len, roundtrip;
 	unsigned char buf[RADIUS_MAX_MSG_LEN];
-//	struct msghdr msghdr = {0};
-//	struct iovec iov;
+
+#ifndef CONFIG_NATIVE_WINDOWS	
+	struct msghdr msghdr = {0};
+	struct iovec iov;
+#endif
 	struct radius_msg *msg;
 	struct radius_hdr *hdr;
 	struct radius_rx_handler *handlers;
@@ -1212,12 +1215,12 @@ static void radius_client_receive(int sock, void *eloop_ctx, void *sock_ctx)
 	hostapd_logger(radius->ctx, NULL, HOSTAPD_MODULE_RADIUS,
 		       HOSTAPD_LEVEL_DEBUG, "Received %d bytes from RADIUS "
 		       "server", len);
-/*
+#ifndef CONFIG_NATIVE_WINDOWS
 	if (msghdr.msg_flags & MSG_TRUNC) {
 		wpa_printf(MSG_INFO, "RADIUS: Possibly too long UDP frame for our buffer - dropping it");
 		return;
 	}
-*/
+#endif
 	msg = radius_msg_parse(buf, len);
 	if (msg == NULL) {
 		wpa_printf(MSG_INFO, "RADIUS: Parsing incoming frame failed");
