@@ -339,7 +339,7 @@ eapol_test_get_config_blob(void *ctx, const char *name)
 	return wpa_config_get_blob(e->wpa_s->conf, name);
 }
 
-/*
+
 static void eapol_test_eapol_done_cb(void *ctx)
 {
 	struct eapol_test_data *e = ctx;
@@ -348,9 +348,6 @@ static void eapol_test_eapol_done_cb(void *ctx)
 	wpa_supplicant_cancel_auth_timeout(e->wpa_s);
 	wpa_supplicant_set_state(e->wpa_s, WPA_COMPLETED);
 }
-
-*/
-
 
 
 static void eapol_sm_reauth(void *eloop_ctx, void *timeout_ctx)
@@ -598,7 +595,7 @@ static int test_eapol(struct eapol_test_data *e, struct wpa_supplicant *wpa_s,
 	ctx->cb_ctx = e;
 	ctx->eapol_send_ctx = wpa_s;
 	ctx->preauth = 0;
-//	ctx->eapol_done_cb = eapol_test_eapol_done_cb;
+	ctx->eapol_done_cb = eapol_test_eapol_done_cb;
 	ctx->eapol_send = eapol_test_eapol_send;
 	ctx->set_config_blob = eapol_test_set_config_blob;
 	ctx->get_config_blob = eapol_test_get_config_blob;
@@ -1562,20 +1559,15 @@ int main(int argc, char *argv[])
 		       wpa_s.conf->ctrl_interface);
 		return -1;
 	}
-	/*
 	if (wpa_s.conf->ssid &&
-		wpa_supplicant_scard_init(&wpa_s, wpa_s.conf->ssid))
+	    wpa_supplicant_scard_init(&wpa_s, wpa_s.conf->ssid))
 		return -1;
-	*/
-
 
 	if (test_eapol(&eapol_test, &wpa_s, wpa_s.conf->ssid))
 		return -1;
-/*
+
 	if (wpas_init_ext_pw(&wpa_s) < 0)
 		return -1;
-*/
-
 
 	if (wait_for_monitor)
 		wpa_supplicant_ctrl_iface_wait(wpa_s.ctrl_iface);
