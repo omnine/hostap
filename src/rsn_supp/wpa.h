@@ -261,6 +261,28 @@ int wpa_sm_set_mlo_params(struct wpa_sm *sm, const struct wpa_sm_mlo *mlo);
 
 #else /* CONFIG_NO_WPA */
 
+static inline int wpa_sm_has_ptk_installed(struct wpa_sm *sm)
+{
+	return -1;
+}
+
+static inline int wpa_sm_set_assoc_rsnxe(struct wpa_sm *sm, const u8 *ie, size_t len)
+{
+	return -1;
+}
+
+static inline int wpa_sm_set_assoc_rsnxe_default(struct wpa_sm *sm, u8 *rsnxe,
+				   size_t *rsnxe_len)
+{
+	return -1;
+}
+
+static inline  void wpa_sm_set_driver_bss_selection(struct wpa_sm *sm,
+				     bool driver_bss_selection)
+{
+
+}
+
 static inline struct wpa_sm * wpa_sm_init(struct wpa_sm_ctx *ctx)
 {
 	return (struct wpa_sm *) 1;

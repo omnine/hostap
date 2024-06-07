@@ -93,6 +93,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\src\common\hw_features_common.c" />
+    <ClCompile Include="..\..\..\src\common\ieee802_11_common.c" />
+    <ClCompile Include="..\..\..\src\common\ptksa_cache.c" />
     <ClCompile Include="..\..\..\src\common\wpa_common.c" />
     <ClCompile Include="..\..\..\src\crypto\aes-ctr.c" />
     <ClCompile Include="..\..\..\src\crypto\aes-eax.c" />
@@ -128,11 +131,10 @@
     <ClCompile Include="..\..\..\src\eap_peer\eap_ttls.c" />
     <ClCompile Include="..\..\..\src\eap_peer\mschapv2.c" />
     <ClCompile Include="..\..\..\src\eap_peer\tncc.c" />
+    <ClCompile Include="..\..\..\src\l2_packet\l2_packet_none.c" />
     <ClCompile Include="..\..\..\src\radius\radius.c" />
     <ClCompile Include="..\..\..\src\radius\radius_client.c" />
     <ClCompile Include="..\..\..\src\rsn_supp\pmksa_cache.c" />
-    <ClCompile Include="..\..\..\src\rsn_supp\wpa.c" />
-    <ClCompile Include="..\..\..\src\rsn_supp\wpa_ie.c" />
     <ClCompile Include="..\..\..\src\utils\base64.c" />
     <ClCompile Include="..\..\..\src\utils\common.c" />
     <ClCompile Include="..\..\..\src\utils\config_in_util.c" />
@@ -142,11 +144,17 @@
     <ClCompile Include="..\..\..\src\utils\pcsc_funcs.c" />
     <ClCompile Include="..\..\..\src\utils\wpabuf.c" />
     <ClCompile Include="..\..\..\src\utils\wpa_debug.c" />
+    <ClCompile Include="..\..\bss.c" />
+    <ClCompile Include="..\..\bssid_ignore.c" />
     <ClCompile Include="..\..\config.c" />
     <ClCompile Include="..\..\config_file.c" />
     <ClCompile Include="..\..\eapol_test.c" />
     <ClCompile Include="..\..\eap_register.c" />
+    <ClCompile Include="..\..\events.c" />
     <ClCompile Include="..\..\notify.c" />
+    <ClCompile Include="..\..\scan.c" />
+    <ClCompile Include="..\..\wpas_glue.c" />
+    <ClCompile Include="..\..\wpa_supplicant.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
