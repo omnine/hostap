@@ -22,7 +22,9 @@
 #include "wmm_ac.h"
 #include "pasn/pasn_common.h"
 
-#include <in6addr.h>
+#ifdef CONFIG_NATIVE_WINDOWS
+	#include <in6addr.h>
+#endif /* CONFIG_NATIVE_WINDOWS */
 
 extern const char *const wpa_supplicant_version;
 extern const char *const wpa_supplicant_license;
